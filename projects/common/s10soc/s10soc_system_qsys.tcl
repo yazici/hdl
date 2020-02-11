@@ -253,10 +253,44 @@ proc ad_cpu_interconnect {m_base m_port {avl_bridge ""} {avl_bridge_base 0x00000
   }
  }
 
-proc ad_dma_interconnect {m_port} {
+proc ad_dma_interconnect {m_port {axi_bridge ""} {axi_write_if ""}} {
 
-  add_connection ${m_port} sys_hps.f2sdram0_data
-  set_connection_parameter_value ${m_port}/sys_hps.f2sdram0_data baseAddress {0x0}
+  if {[string equal ${axi_bridge} ""]} {
+    add_connection ${m_port} sys_hps.f2sdram0_data
+    set_connection_parameter_value ${m_port}/sys_hps.f2sdram0_data baseAddress {0x0}
+  } else {
+    if {[lsearch -exact [get_instances] ${axi_bridge}] == -1} {
+      ## Instantiate the bridge and connect the interfaces
+      add_instance ${axi_bridge} altera_axi_bridge
+      set_instance_parameter_value ${axi_bridge} {SYNC_RESET} {1}
+      set_instance_parameter_value ${axi_bridge} {AXI_VERSION} {AXI4}
+      set_instance_parameter_value ${axi_bridge} {DATA_WIDTH} {128}
+      set_instance_parameter_value ${axi_bridge} {ADDR_WIDTH} {32}
+      if {[string equal ${axi_write_if} "0"]} {
+        set_instance_parameter_value ${axi_bridge} {WRITE_ACCEPTANCE_CAPABILITY} {16}
+        set_instance_parameter_value ${axi_bridge} {READ_ACCEPTANCE_CAPABILITY} {1}
+        set_instance_parameter_value ${axi_bridge} {COMBINED_ACCEPTANCE_CAPABILITY} {16}
+      } elseif {[string equal ${axi_write_if} "1"]} {
+        set_instance_parameter_value ${axi_bridge} {WRITE_ACCEPTANCE_CAPABILITY} {1}
+        set_instance_parameter_value ${axi_bridge} {READ_ACCEPTANCE_CAPABILITY} {16}
+        set_instance_parameter_value ${axi_bridge} {COMBINED_ACCEPTANCE_CAPABILITY} {16}
+      } else {
+        send_message error "Specify the interface type, if a bridge is used. 1 is for WRITE, 0 is for READ."
+      }
+      set_instance_parameter_value ${axi_bridge} {S0_ID_WIDTH} {2}
+      set_instance_parameter_value ${axi_bridge} {M0_ID_WIDTH} {2}
+      set_instance_parameter_value ${axi_bridge} {WRITE_ISSUING_CAPABILITY} {16}
+      set_instance_parameter_value ${axi_bridge} {READ_ISSUING_CAPABILITY} {16}
+      set_instance_parameter_value ${axi_bridge} {COMBINED_ISSUING_CAPABILITY} {16}
+    } else {
+      send_message error "The ${axi_bridge} name is already used, please choose another name."
+    }
+    add_connection sys_clk.out_clk ${axi_bridge}.clk
+    add_connection sys_resetn.out_reset ${axi_bridge}.clk_reset
+    add_connection ${m_port} ${axi_bridge}.s0
+    add_connection ${axi_bridge}.m0 sys_hps.f2sdram0_data
+    set_connection_parameter_value ${axi_bridge}.m0/sys_hps.f2sdram0_data baseAddress {0x0}
+  }
 }
 
 # gpio-bd

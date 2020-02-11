@@ -143,6 +143,7 @@ set_instance_parameter_value axi_adrv9009_tx_dma {DMA_LENGTH_WIDTH} {24}
 set_instance_parameter_value axi_adrv9009_tx_dma {DMA_2D_TRANSFER} {0}
 set_instance_parameter_value axi_adrv9009_tx_dma {AXI_SLICE_DEST} {0}
 set_instance_parameter_value axi_adrv9009_tx_dma {AXI_SLICE_SRC} {0}
+set_instance_parameter_value axi_adrv9009_tx_dma {AXI_ID_WIDTH_SRC} {2}
 set_instance_parameter_value axi_adrv9009_tx_dma {SYNC_TRANSFER_START} {0}
 set_instance_parameter_value axi_adrv9009_tx_dma {CYCLIC} {1}
 set_instance_parameter_value axi_adrv9009_tx_dma {DMA_TYPE_DEST} {1}
@@ -167,6 +168,7 @@ set_instance_parameter_value axi_adrv9009_rx_dma {DMA_DATA_WIDTH_DEST} {128}
 set_instance_parameter_value axi_adrv9009_rx_dma {DMA_LENGTH_WIDTH} {24}
 set_instance_parameter_value axi_adrv9009_rx_dma {DMA_2D_TRANSFER} {0}
 set_instance_parameter_value axi_adrv9009_rx_dma {AXI_SLICE_DEST} {0}
+set_instance_parameter_value axi_adrv9009_rx_dma {AXI_ID_WIDTH_DEST} {2}
 set_instance_parameter_value axi_adrv9009_rx_dma {AXI_SLICE_SRC} {0}
 set_instance_parameter_value axi_adrv9009_rx_dma {SYNC_TRANSFER_START} {1}
 set_instance_parameter_value axi_adrv9009_rx_dma {CYCLIC} {0}
@@ -190,6 +192,7 @@ set_instance_parameter_value axi_adrv9009_rx_os_dma {DMA_DATA_WIDTH_DEST} {128}
 set_instance_parameter_value axi_adrv9009_rx_os_dma {DMA_LENGTH_WIDTH} {24}
 set_instance_parameter_value axi_adrv9009_rx_os_dma {DMA_2D_TRANSFER} {0}
 set_instance_parameter_value axi_adrv9009_rx_os_dma {AXI_SLICE_DEST} {0}
+set_instance_parameter_value axi_adrv9009_rx_os_dma {AXI_ID_WIDTH_DEST} {2}
 set_instance_parameter_value axi_adrv9009_rx_os_dma {AXI_SLICE_SRC} {0}
 set_instance_parameter_value axi_adrv9009_rx_os_dma {SYNC_TRANSFER_START} {1}
 set_instance_parameter_value axi_adrv9009_rx_os_dma {CYCLIC} {0}
@@ -266,9 +269,9 @@ ad_cpu_interconnect 0x00070000 avl_adrv9009_gpio.s1
 
 # dma interconnects
 
-ad_dma_interconnect axi_adrv9009_tx_dma.m_src_axi
-ad_dma_interconnect axi_adrv9009_rx_dma.m_dest_axi
-ad_dma_interconnect axi_adrv9009_rx_os_dma.m_dest_axi
+ad_dma_interconnect axi_adrv9009_tx_dma.m_src_axi axi_tx 0
+ad_dma_interconnect axi_adrv9009_rx_dma.m_dest_axi axi_rx 1
+ad_dma_interconnect axi_adrv9009_rx_os_dma.m_dest_axi axi_rx_os 1
 
 # interrupts
 

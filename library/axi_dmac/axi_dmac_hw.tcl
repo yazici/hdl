@@ -112,6 +112,12 @@ foreach {suffix group} { \
   set_parameter_property AXI_SLICE_$suffix DISPLAY_HINT boolean
   set_parameter_property AXI_SLICE_$suffix HDL_PARAMETER true
   set_parameter_property AXI_SLICE_$suffix GROUP $group
+
+  add_parameter AXI_ID_WIDTH_$suffix INTEGER 1
+  set_parameter_property AXI_ID_WIDTH_$suffix DISPLAY_NAME "Interfaces ID Width"
+  set_parameter_property AXI_ID_WIDTH_$suffix UNITS Bits
+  set_parameter_property AXI_ID_WIDTH_$suffix HDL_PARAMETER true
+  set_parameter_property AXI_ID_WIDTH_$suffix GROUP $group
 }
 
 # FIFO interface
@@ -373,13 +379,13 @@ proc add_axi_master_interface {axi_type port suffix} {
   # Some signals are mandatory in Intel's implementation of AXI3
   # awid, awlock, wid, bid, arid, arlock, rid, rlast
   # Hide them in AXI4
-  add_interface_port $port ${port}_awid awid Output 1
+  add_interface_port $port ${port}_awid awid Output "AXI_ID_WIDTH_${suffix}"
   add_interface_port $port ${port}_awlock awlock Output "1+DMA_AXI_PROTOCOL_${suffix}"
-  add_interface_port $port ${port}_wid wid Output 1
-  add_interface_port $port ${port}_arid arid Output 1
+  add_interface_port $port ${port}_wid wid Output "AXI_ID_WIDTH_${suffix}"
+  add_interface_port $port ${port}_arid arid Output "AXI_ID_WIDTH_${suffix}"
   add_interface_port $port ${port}_arlock arlock Output "1+DMA_AXI_PROTOCOL_${suffix}"
-  add_interface_port $port ${port}_rid rid Input 1
-  add_interface_port $port ${port}_bid bid Input 1
+  add_interface_port $port ${port}_rid rid Input "AXI_ID_WIDTH_${suffix}"
+  add_interface_port $port ${port}_bid bid Input "AXI_ID_WIDTH_${suffix}"
   add_interface_port $port ${port}_rlast rlast Input 1
   if {$axi_type == "axi4"} {
     set_port_property ${port}_awid TERMINATION true
@@ -394,6 +400,7 @@ proc add_axi_master_interface {axi_type port suffix} {
     }
   }
 }
+
 proc axi_dmac_elaborate {} {
   set fifo_size [get_parameter_value FIFO_SIZE]
   set disabled_intfs {}
